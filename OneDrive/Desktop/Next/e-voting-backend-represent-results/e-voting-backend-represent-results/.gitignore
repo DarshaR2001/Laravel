@@ -1,0 +1,27 @@
+# Ignore VSCode extension binaries (Amiga Debug)
+.vscode/extensions/bartmanabyss.amiga-debug-*/
+
+# Ignore dylib files (dynamic libraries)
+**/*.dylib
+
+# Ignore Amiga toolchain binaries and libraries
+**/darwin/fs-uae/lib/
+**/darwin/opt/bin/
+**/darwin/opt/lib/
+
+# Optional: Ignore all binaries (executables, object files, etc.)
+**/*.o
+**/*.a
+**/*.so
+**/*.elf
+**/*.exe
+
+# If you want to be more specific:
+# Ignore m68k compiler toolchain binaries
+**/m68k-amiga-elf-*
+
+
+# Ignore entire Amiga debug extension folder
+.vscode/extensions/bartmanabyss.amiga-debug-*/
+
+

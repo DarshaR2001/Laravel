@@ -48,86 +48,17 @@ public type Voter record {|
 # + endDate - election end date
 # + noOfCandidates - election number of candidates
 
-
-public type Election record {|  
+public type Election record {|
     readonly string id;
-
     @sql:Name {value: "election_name"}
     string electionName;
-
     string description;
-
     @sql:Name {value: "start_date"}
     time:Date startDate;
-
     @sql:Name {value: "enrol_ddl"}
     time:Date enrolDdl;
-
     @sql:Name {value: "end_date"}
     time:Date endDate;
-
     @sql:Name {value: "no_of_candidates"}
     int noOfCandidates;
-
-
-|};
-
-
-# Candidates 
-#
-# + candidateId - Candidate id (Primary Key)
-# + partyName - party name
-# + candidateName - candidate name
-
-
-public type Candidate record {|  
-    @sql:Name {value: "candidate_id"}
-    readonly string candidateId;
-
-    @sql:Name {value: "party_name"}
-    string partyName;
-
-    @sql:Name {value: "candidate_name"}
-    string candidateName;
-|};
-
-
-# votes per candidate
-#
-# + voteId - vote id (Primary Key)
-# + electionId - election id 
-# + candidateId - candidate id
-# + numberOfVotes - number of votes
-
-public type Votes record {|  
-    readonly string voteId;
-
-    @sql:Name {value: "election_id"}
-    string electionId;
-
-    @sql:Name {value: "candidate_id"}
-    string candidateId;
-
-    @sql:Name {value: "number_of_votes"}
-    int numberOfVotes;
-|};
-
-# Election summary
-#
-# + electionId - election id 
-# + registeredVotes - registered votes
-# + publishVotes - publish votes
-# + rejectedVotes - rejected votes
-
-public type electionSummary record {|  
-    readonly string electionId;
-
-    @sql:Name {value: "registered_votes"}
-    string registeredVotes;
-
-    @sql:Name {value: "publish_votes"}
-    string publishVotes;
-
-    @sql:Name {value: "rejected_votes"}
-    int rejectedVotes;
 |};

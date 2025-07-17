@@ -3,7 +3,6 @@ import online_election.election;
 import online_election.store;
 
 import ballerina/http;
-import online_election.results;
 
 listener http:Listener SharedListener = new (8080);
 
@@ -58,21 +57,5 @@ service /election/api/v1 on SharedListener {
     resource function delete elections/[string electionId]/delete(@http:Header string authorization)
     returns http:NoContent|http:Forbidden|error {
         return check election:deleteElection(electionId);
-    }
-}
-
-// If you have a SharedListener defined elsewhere, use this version instead:
-
-
-service /results/api/v1 on SharedListener {
-
-    // Get all candidate results
-    resource function get candidates() returns store:Candidate[]|error {
-        return check results:getCandidateResults();
-    }
-
-    // Get all election summaries
-    resource function get electionsummaries() returns store:electionSummary[]|error {
-        return check results:getElectionSummary();
     }
 }
