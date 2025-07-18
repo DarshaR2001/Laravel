@@ -9,7 +9,7 @@ public type CandidateUpdate record {|
     int? popularVotes;
     int? electoralVotes;
     int? position;
-    time:Utc? updatedAt;
+    time:Civil? updatedAt;
 |};
 
 public type DistrictResultUpdate record {|
@@ -18,7 +18,7 @@ public type DistrictResultUpdate record {|
     decimal? margin;
     decimal? turnoutPercentage;
     string? status;
-    time:Utc? updatedAt;
+    time:Civil? updatedAt;
 |};
 
 public type ElectionSummaryUpdate record {|
@@ -31,5 +31,5 @@ public type ElectionSummaryUpdate record {|
     string? electionStatus;
     int? completedDistricts;
     boolean? resultsPublished;
-    time:Utc? lastUpdated;
+    time:Civil? lastUpdated;
 |};

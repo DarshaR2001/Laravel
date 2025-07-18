@@ -6,14 +6,20 @@ distribution = "2201.12.2"
 
 [build-options]
 observabilityIncluded = true
-[[platform.java21.dependency]]
+
+[[platform.java11.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "persist.inmemory-native"
 version = "1.6.0"
 
-[[platform.java21.dependency]]
+[[platform.java11.dependency]]
 groupId = "io.ballerina.stdlib"
 artifactId = "persist.sql-native"
 version = "1.6.0"
+
+[[platform.java17.dependency]]
+groupId = "io.ballerina.stdlib"
+artifactId = "persist.sql-native"
+version = "1.4.1"
 
 

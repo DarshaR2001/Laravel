@@ -10,6 +10,5 @@ configurable string host = ?;
 configurable string user = ?;
 configurable string database = ?;
 configurable string password = ?;
-configurable postgresql:Options & readonly connectionOptions = {};
-configurable string? defaultSchema = ();
+configurable postgresql:Options connectionOptions = {};
 

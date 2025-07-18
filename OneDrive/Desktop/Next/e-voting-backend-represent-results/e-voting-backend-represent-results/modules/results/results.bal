@@ -2,6 +2,7 @@ import online_election.store;
 import ballerina/persist;
 import ballerina/http;
 import ballerina/time;
+import ballerina/sql;
 
 final store:Client dbClient = check new ();
 
@@ -34,16 +35,11 @@ public type ElectionStatistics record {
     string electionStatus;
 };
 
-
-public type CandidateUpdateRequest record {
-    int popularVotes;
-    int electoralVotes;
-};
-
-public type DistrictUpdateRequest record {
-    string winner;
-    decimal margin;
-    int votesProcessed;
+public type ProvinceResults record {
+    string provinceName;
+    store:DistrictResult[] districts;
+    store:Candidate[] topCandidates;
+    int totalVotes;
 };
 
 // Get complete election summary with all data needed for frontend
@@ -105,9 +101,8 @@ public function getElectionStatistics() returns ElectionStatistics|error {
 // Get results by province
 public function getProvinceResults(string provinceName) returns ProvinceResults|error {
     // Get districts for the province
-    stream<store:DistrictResult, persist:Error?> districtsStream = dbClient->/districtresults;
+    stream<store:DistrictResult, persist:Error?> districtsStream = dbClient->/districtresults(whereClause = sql `WHERE province = ${provinceName}`);
     store:DistrictResult[] provinceDistricts = check from store:DistrictResult district in districtsStream
-        where district.province == provinceName
         select district;
     
     // Get top candidates
@@ -130,9 +125,9 @@ public function getProvinceResults(string provinceName) returns ProvinceResults|
 }
 
 // Original functions
-public function getElectionSummary() returns store:electionSummary[]|error {
-    stream<store:electionSummary, persist:Error?> electionSummariesStream = dbClient->/electionsummaries;
-    store:electionSummary[] electionSummaries = check from store:electionSummary electionSummary in electionSummariesStream
+public function getElectionSummary() returns store:ElectionSummary[]|error {
+    stream<store:ElectionSummary, persist:Error?> electionSummariesStream = dbClient->/electionsummaries;
+    store:ElectionSummary[] electionSummaries = check from store:ElectionSummary electionSummary in electionSummariesStream
         select electionSummary;
     return electionSummaries;
 }
@@ -153,9 +148,8 @@ public function getDistrictResults() returns store:DistrictResult[]|error {
 
 // Fixed function using query instead of direct access
 public function getCandidateById(string candidateId, string electionId) returns store:Candidate|error {
-    stream<store:Candidate, persist:Error?> candidatesStream = dbClient->/candidates;
+    stream<store:Candidate, persist:Error?> candidatesStream = dbClient->/candidates(whereClause = sql `WHERE candidateId = ${candidateId} AND electionId = ${electionId}`);
     store:Candidate[] candidates = check from store:Candidate candidate in candidatesStream
-        where candidate.candidateId == candidateId && candidate.electionId == electionId
         select candidate;
     
     if candidates.length() == 0 {
@@ -166,9 +160,8 @@ public function getCandidateById(string candidateId, string electionId) returns 
 }
 
 public function getDistrictById(string districtCode, string electionId) returns store:DistrictResult|error {
-    stream<store:DistrictResult, persist:Error?> districtsStream = dbClient->/districtresults;
+    stream<store:DistrictResult, persist:Error?> districtsStream = dbClient->/districtresults(whereClause = sql `WHERE districtCode = ${districtCode} AND electionId = ${electionId}`);
     store:DistrictResult[] districts = check from store:DistrictResult district in districtsStream
-        where district.districtCode == districtCode && district.electionId == electionId
         select district;
     
     if districts.length() == 0 {
@@ -180,9 +173,8 @@ public function getDistrictById(string districtCode, string electionId) returns 
 
 // Alternative: Simple versions without composite keys (for testing)
 public function getCandidateByIdSimple(string candidateId) returns store:Candidate|error {
-    stream<store:Candidate, persist:Error?> candidatesStream = dbClient->/candidates;
+    stream<store:Candidate, persist:Error?> candidatesStream = dbClient->/candidates(whereClause = sql `WHERE candidateId = ${candidateId}`);
     store:Candidate[] candidates = check from store:Candidate candidate in candidatesStream
-        where candidate.candidateId == candidateId
         select candidate;
     
     if candidates.length() == 0 {
@@ -193,9 +185,8 @@ public function getCandidateByIdSimple(string candidateId) returns store:Candida
 }
 
 public function getDistrictByIdSimple(string districtCode) returns store:DistrictResult|error {
-    stream<store:DistrictResult, persist:Error?> districtsStream = dbClient->/districtresults;
+    stream<store:DistrictResult, persist:Error?> districtsStream = dbClient->/districtresults(whereClause = sql `WHERE districtCode = ${districtCode}`);
     store:DistrictResult[] districts = check from store:DistrictResult district in districtsStream
-        where district.districtCode == districtCode
         select district;
     
     if districts.length() == 0 {
@@ -206,25 +197,44 @@ public function getDistrictByIdSimple(string districtCode) returns store:Distric
 }
 
 // Update functions using queries
-public function updateCandidateResults(string candidateId, string electionId, CandidateUpdateRequest updateData) returns store:Candidate|error {
-    // First get the candidate
-    store:Candidate candidate = check getCandidateById(candidateId, electionId);
-    
-    // For now, return the candidate (update functionality would need custom SQL)
-    // This is a limitation of Ballerina persist with composite keys
-    return candidate;
-}
 
-public function updateDistrictResults(string districtCode, string electionId, DistrictUpdateRequest updateData) returns store:DistrictResult|error {
-    // First get the district
-    store:DistrictResult district = check getDistrictById(districtCode, electionId);
-    
-    // For now, return the district (update functionality would need custom SQL)
-    // This is a limitation of Ballerina persist with composite keys
-    return district;
-}
+public function getDistrictWinnersView() returns DistrictWinnerView[]|error {
+    // Get all district results
+    stream<store:DistrictResult, persist:Error?> districtsStream = dbClient->/districtresults;
+    store:DistrictResult[] districts = check from store:DistrictResult district in districtsStream
+        select district;
 
-// WebSocket handler for real-time updates (optional)
-public function handleWebSocketConnection() returns http:Response|error {
-    return new http:Response();
+    // Get all candidates and create a map for efficient lookup
+    stream<store:Candidate, persist:Error?> candidatesStream = dbClient->/candidates;
+    store:Candidate[] candidates = check from store:Candidate candidate in candidatesStream
+        select candidate;
+    
+    map<store:Candidate> candidateMap = {};
+    foreach var candidate in candidates {
+        candidateMap[candidate.candidateId] = candidate;
+    }
+
+    // Create the view by joining district results with winners
+    DistrictWinnerView[] districtWinners = [];
+    foreach var district in districts {
+        if district.winner is string {
+            string winnerId = <string>district.winner;
+            if candidateMap.hasKey(winnerId) {
+                store:Candidate winner = candidateMap.get(winnerId);
+                DistrictWinnerView winnerView = {
+                    districtCode: district.districtCode,
+                    districtName: district.districtName,
+                    electoralVotes: district.totalVotes / 1000, // Placeholder logic
+                    winnerCandidateId: winner.candidateId,
+                    winnerName: winner.candidateName,
+                    winnerParty: winner.partyName,
+                    winnerColor: winner.partyColor,
+                    winnerVotes: district.votesProcessed
+                };
+                districtWinners.push(winnerView);
+            }
+        }
+    }
+    
+    return districtWinners;
 }

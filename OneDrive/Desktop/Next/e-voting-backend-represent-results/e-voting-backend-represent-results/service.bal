@@ -9,29 +9,29 @@ import ballerina/time;
 listener http:Listener SharedListener = new (8080);
 
 // Voter registration service
-service /voter\-registration/api/v1 on SharedListener {
-    // Register a new voter
-    resource function post voters/register(store:Voter newVoter)
+ service /voter\-registration/api/v1 on SharedListener {
+//     // Register a new voter
+     resource function post voters/register(store:Voter newVoter)
     returns http:Created|http:Forbidden|error {
         return check auth:registerVoter(newVoter);
     }
     
-    // Voter Login
+//     // Voter Login
     resource function post voters/login(auth:VoterLogin loginDetails)
     returns http:Response|http:Unauthorized|error {
         return check auth:loginVoter(loginDetails);
     }
-}
+ }
 
 // Election management service
-service /election/api/v1 on SharedListener {
+ service /election/api/v1 on SharedListener {
     resource function get elections() returns store:Election[]|error {
         return check election:getElections();
     }
     
-    resource function get elections/[string electionId]() returns store:Election|error {
-        return check election:getOneElection(electionId);
-    }
+   resource function get elections/[string electionId]() returns store:Election|error {
+       return check election:getOneElection(electionId);
+   }
     
     resource function post elections/create(@http:Header string authorization, election:ElectionConfig newElectionConfig)
     returns http:Created|http:Forbidden|error {
@@ -40,14 +40,14 @@ service /election/api/v1 on SharedListener {
     
     resource function put elections/[string electionId]/update(@http:Header string authorization, store:ElectionUpdate updatedElection)
     returns http:Ok|http:Forbidden|error {
-        return check election:updateElection(electionId, updatedElection);
-    }
+         return check election:updateElection(electionId, updatedElection);
+     }
     
-    resource function delete elections/[string electionId]/delete(@http:Header string authorization)
-    returns http:NoContent|http:Forbidden|error {
+     resource function delete elections/[string electionId]/delete(@http:Header string authorization)
+     returns http:NoContent|http:Forbidden|error {
         return check election:deleteElection(electionId);
     }
-}
+ }
 
 // Results service for frontend integration (FIXED - using same listener)
 @http:ServiceConfig {
@@ -115,21 +115,9 @@ service /api/election on SharedListener {
         return check results:getProvinceResults(provinceName);
     }
     
-    // Update candidate results (FIXED - with proper parameters)
-    resource function put candidates/[string candidateId]/[string electionId](@http:Payload results:CandidateUpdateRequest updateData)
-    returns store:Candidate|http:NotFound|error {
-        return check results:updateCandidateResults(candidateId, electionId, updateData);
-    }
-   
-    
-    // Update district results (FIXED - with proper parameters)
-    resource function put districts/[string districtCode]/[string electionId](@http:Payload results:DistrictUpdateRequest updateData)
-    returns store:DistrictResult|http:NotFound|error {
-        return check results:updateDistrictResults(districtCode, electionId, updateData);
-    }
-
-    resource function get district-winners() returns DistrictWinnerView[]|error {
-    return check getDistrictWinnersView();
+    // Get district winners view
+    resource function get district-winners() returns results:DistrictWinnerView[]|error {
+        return check results:getDistrictWinnersView();
     }
 }
 

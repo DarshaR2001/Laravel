@@ -5,30 +5,17 @@
 
 DROP TABLE IF EXISTS "Candidate";
 DROP TABLE IF EXISTS "Voter";
+DROP TABLE IF EXISTS "ElectionSummary";
 DROP TABLE IF EXISTS "Election";
 DROP TABLE IF EXISTS "DistrictResult";
-DROP TABLE IF EXISTS "electionSummary";
-
-CREATE TABLE "electionSummary" (
-	"electionId" VARCHAR(191) NOT NULL,
-	"total_registered_voters" INT NOT NULL,
-	"total_votes_cast" INT NOT NULL,
-	"total_rejected_votes" INT NOT NULL,
-	"turnout_percentage" DECIMAL(65,30) NOT NULL,
-	"winner_candidate_id" VARCHAR(191),
-	"election_status" VARCHAR(191) NOT NULL,
-	PRIMARY KEY("electionId")
-);
 
 CREATE TABLE "DistrictResult" (
 	"district_code" VARCHAR(191) NOT NULL,
 	"election_id" VARCHAR(191) NOT NULL,
 	"district_name" VARCHAR(191) NOT NULL,
-	"province" VARCHAR(191) NOT NULL,
 	"total_votes" INT NOT NULL,
 	"votes_processed" INT NOT NULL,
 	"winner" VARCHAR(191),
-	"margin" DECIMAL(65,30) NOT NULL,
 	"status" VARCHAR(191) NOT NULL,
 	PRIMARY KEY("district_code","election_id")
 );
@@ -42,6 +29,17 @@ CREATE TABLE "Election" (
 	"end_date" DATE NOT NULL,
 	"no_of_candidates" INT NOT NULL,
 	PRIMARY KEY("id")
+);
+
+CREATE TABLE "ElectionSummary" (
+	"electionId" VARCHAR(191) NOT NULL,
+	"total_registered_voters" INT NOT NULL,
+	"total_votes_cast" INT NOT NULL,
+	"total_rejected_votes" INT NOT NULL,
+	"turnout_percentage" DECIMAL(65,30) NOT NULL,
+	"winner_candidate_id" VARCHAR(191),
+	"election_status" VARCHAR(191) NOT NULL,
+	PRIMARY KEY("electionId")
 );
 
 CREATE TABLE "Voter" (
@@ -72,7 +70,7 @@ CREATE TABLE "Candidate" (
 	"electoral_votes" INT NOT NULL,
 	"position" INT,
 	"is_active" BOOLEAN NOT NULL,
-	PRIMARY KEY("candidate_id","election_id")
+	PRIMARY KEY("candidate_id")
 );
 
 

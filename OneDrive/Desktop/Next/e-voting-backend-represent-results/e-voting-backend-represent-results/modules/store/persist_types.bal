@@ -57,9 +57,9 @@ public type Election record {|
     readonly string id;
     string electionName;
     string description;
-    time:Date startDate;
-    time:Date enrolDdl;
-    time:Date endDate;
+    time:Civil startDate;
+    time:Civil enrolDdl;
+    time:Civil endDate;
     int noOfCandidates;
 |};
 
@@ -67,9 +67,9 @@ public type ElectionOptionalized record {|
     string id?;
     string electionName?;
     string description?;
-    time:Date startDate?;
-    time:Date enrolDdl?;
-    time:Date endDate?;
+    time:Civil startDate?;
+    time:Civil enrolDdl?;
+    time:Civil endDate?;
     int noOfCandidates?;
 |};
 
@@ -80,15 +80,15 @@ public type ElectionInsert Election;
 public type ElectionUpdate record {|
     string electionName?;
     string description?;
-    time:Date startDate?;
-    time:Date enrolDdl?;
-    time:Date endDate?;
+    time:Civil startDate?;
+    time:Civil enrolDdl?;
+    time:Civil endDate?;
     int noOfCandidates?;
 |};
 
 public type Candidate record {|
     readonly string candidateId;
-    readonly string electionId;
+    string electionId;
     string candidateName;
     string partyName;
     string? partySymbol;
@@ -119,6 +119,7 @@ public type CandidateTargetType typedesc<CandidateOptionalized>;
 public type CandidateInsert Candidate;
 
 public type CandidateUpdate record {|
+    string electionId?;
     string candidateName?;
     string partyName?;
     string? partySymbol?;
@@ -134,11 +135,9 @@ public type DistrictResult record {|
     readonly string districtCode;
     readonly string electionId;
     string districtName;
-    string province;
     int totalVotes;
     int votesProcessed;
     string? winner;
-    decimal margin;
     string status;
 |};
 
@@ -146,11 +145,9 @@ public type DistrictResultOptionalized record {|
     string districtCode?;
     string electionId?;
     string districtName?;
-    string province?;
     int totalVotes?;
     int votesProcessed?;
     string? winner?;
-    decimal margin?;
     string status?;
 |};
 
@@ -160,15 +157,13 @@ public type DistrictResultInsert DistrictResult;
 
 public type DistrictResultUpdate record {|
     string districtName?;
-    string province?;
     int totalVotes?;
     int votesProcessed?;
     string? winner?;
-    decimal margin?;
     string status?;
 |};
 
-public type electionSummary record {|
+public type ElectionSummary record {|
     readonly string electionId;
     int totalRegisteredVoters;
     int totalVotesCast;
@@ -178,7 +173,7 @@ public type electionSummary record {|
     string electionStatus;
 |};
 
-public type electionSummaryOptionalized record {|
+public type ElectionSummaryOptionalized record {|
     string electionId?;
     int totalRegisteredVoters?;
     int totalVotesCast?;
@@ -188,11 +183,11 @@ public type electionSummaryOptionalized record {|
     string electionStatus?;
 |};
 
-public type electionSummaryTargetType typedesc<electionSummaryOptionalized>;
+public type ElectionSummaryTargetType typedesc<ElectionSummaryOptionalized>;
 
-public type electionSummaryInsert electionSummary;
+public type ElectionSummaryInsert ElectionSummary;
 
-public type electionSummaryUpdate record {|
+public type ElectionSummaryUpdate record {|
     int totalRegisteredVoters?;
     int totalVotesCast?;
     int totalRejectedVotes?;

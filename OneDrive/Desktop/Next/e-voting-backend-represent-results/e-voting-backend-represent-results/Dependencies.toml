@@ -5,7 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.12.3"
+distribution-version = "2201.12.2"
 
 [[package]]
 org = "ballerina"
@@ -400,7 +400,5 @@ modules = [
 	{org = "codeCrew", packageName = "online_election", moduleName = "online_election.auth"},
 	{org = "codeCrew", packageName = "online_election", moduleName = "online_election.common"},
 	{org = "codeCrew", packageName = "online_election", moduleName = "online_election.election"},
-	{org = "codeCrew", packageName = "online_election", moduleName = "online_election.results"},
 	{org = "codeCrew", packageName = "online_election", moduleName = "online_election.store"}
 ]
-
